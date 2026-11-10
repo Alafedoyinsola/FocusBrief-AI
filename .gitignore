@@ -50,3 +50,21 @@ Thumbs.db
 
 
 /.forge/
+
+# Local environment & dotenv files
+.env
+.env.*
+
+# Local secret, credential, and key files
+secrets.json
+credentials.json
+*.secrets.json
+*.credentials.json
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local Forge runtime state & environment files
+.forge/
+.forge.*
