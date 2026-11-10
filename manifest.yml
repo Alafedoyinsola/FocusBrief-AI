@@ -1,0 +1,31 @@
+modules:
+  jira:globalPage:
+    - key: focusbrief-ai-daily-briefing
+      title: FocusBrief AI
+      resource: main
+      resolver:
+        function: resolver
+      render: native
+  function:
+    - key: resolver
+      handler: index.handler
+resources:
+  - key: main
+    path: src/frontend/index.jsx
+app:
+  runtime:
+    name: nodejs24.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/c7af1346-cf9f-491d-a8de-9ba75681257c
+  compatibility:
+    jira:
+      required: true
+    confluence:
+      required: false
+permissions:
+  scopes:
+    - read:jira-user
+    - read:jira-work
+    - search:confluence
+    - read:confluence-content.summary
