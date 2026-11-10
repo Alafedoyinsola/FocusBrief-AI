@@ -14,11 +14,10 @@ import ForgeReconciler, {
   useTheme,
   xcss
 } from '@forge/react';
-import { invoke, router, view } from '@forge/bridge';
+import { invoke, router } from '@forge/bridge';
 import {
   findIssueByKey,
   getThemeSurfacePalette,
-  normalizeColorMode,
   openConfluenceDocWithRouter,
   openJiraIssueWithRouter
 } from './briefingViewHelpers.js';
@@ -34,8 +33,8 @@ import { IssueDetailModal } from './components/IssueDetailModal.jsx';
  * Root FocusBrief AI Global Page component.
  *
  * Orchestrates:
- * - Jira host theme synchronization via `view.theme.enable()` + `useTheme()`,
- *   paired with a session-only light/dark surface override toggle.
+ * - Automatic Jira host theme synchronization via Forge UI Kit `useTheme()`
+ *   and semantic Atlassian Design System surface tokens.
  * - Initial and manual `getDailyBriefing` invocation with duplicate-request protection
  *   and non-destructive refresh failure handling.
  * - Interactive tabs, task inspection modal, and native Forge `router.open()` navigation.
@@ -48,7 +47,6 @@ const App = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshError, setRefreshError] = useState(null);
   const [navigationWarning, setNavigationWarning] = useState(null);
-  const [themeOverride, setThemeOverride] = useState(null);
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedIssueKey, setSelectedIssueKey] = useState(null);
 
@@ -60,20 +58,6 @@ const App = () => {
     return () => {
       isMountedRef.current = false;
     };
-  }, []);
-
-  // Activate Atlassian Design System host theming inside the UI Kit sandbox
-  useEffect(() => {
-    try {
-      const result = view.theme.enable();
-      if (result && typeof result.catch === 'function') {
-        result.catch((err) => {
-          console.warn('Unable to enable Forge host theming:', err);
-        });
-      }
-    } catch (err) {
-      console.warn('Unable to enable Forge host theming:', err);
-    }
   }, []);
 
   const loadBriefing = useCallback(async ({ isRefresh = false } = {}) => {
@@ -137,17 +121,7 @@ const App = () => {
     loadBriefing({ isRefresh: false });
   }, [loadBriefing]);
 
-  const hostColorMode = normalizeColorMode(hostTheme?.colorMode);
-  const palette = getThemeSurfacePalette(hostColorMode, themeOverride);
-
-  const handleToggleTheme = (wantsDark) => {
-    const requestedMode = wantsDark ? 'dark' : 'light';
-    setThemeOverride(requestedMode === hostColorMode ? null : requestedMode);
-  };
-
-  const handleResetTheme = () => {
-    setThemeOverride(null);
-  };
+  const palette = getThemeSurfacePalette(hostTheme?.colorMode);
 
   const handleOpenIssue = async (issueKey) => {
     const ok = await openJiraIssueWithRouter(issueKey, router);
@@ -168,7 +142,7 @@ const App = () => {
   });
 
   const hostPanelStyle = xcss({
-    borderColor: 'color.border',
+    borderColor: palette.borderColor,
     borderStyle: 'solid',
     borderWidth: 'border.width',
     borderRadius: 'radius.medium'
@@ -232,8 +206,6 @@ const App = () => {
           timeZone={briefing.timeZone}
           metadata={briefing.metadata}
           palette={palette}
-          onToggleTheme={handleToggleTheme}
-          onResetTheme={handleResetTheme}
           isRefreshing={isRefreshing}
           refreshError={refreshError}
           onRefresh={() => loadBriefing({ isRefresh: true })}

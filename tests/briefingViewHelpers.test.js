@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  normalizeColorMode,
+  formatJiraThemeLabel,
   getThemeSurfacePalette,
   formatBriefingDate,
   formatTimestampInTimeZone,
@@ -91,37 +93,213 @@ function createSampleIssues() {
   ];
 }
 
-test('getThemeSurfacePalette follows Jira host tokens when not overridden', () => {
-  const lightHost = getThemeSurfacePalette('light', null);
-  assert.equal(lightHost.hostColorMode, 'light');
-  assert.equal(lightHost.effectiveColorMode, 'light');
-  assert.equal(lightHost.isCustomOverride, false);
-  assert.equal(lightHost.cardBg, 'elevation.surface.raised');
-  assert.equal(lightHost.headingColor, 'color.text');
-  assert.equal(lightHost.iconColor, 'color.icon');
+test('getThemeSurfacePalette uses valid ADS semantic tokens for both Jira light and dark host modes', () => {
+  const expectedSemanticTokens = {
+    pageBg: 'elevation.surface.sunken',
+    cardBg: 'elevation.surface.raised',
+    subtleCardBg: 'elevation.surface',
+    hostSurfaceBg: 'elevation.surface',
+    borderColor: 'color.border',
+    headingColor: 'color.text',
+    textColor: 'color.text',
+    subduedTextColor: 'color.text.subtle',
+    iconColor: 'color.icon',
+    buttonAppearance: 'default'
+  };
 
-  const darkHostMatchesOverride = getThemeSurfacePalette('dark', 'dark');
-  assert.equal(darkHostMatchesOverride.hostColorMode, 'dark');
-  assert.equal(darkHostMatchesOverride.effectiveColorMode, 'dark');
-  assert.equal(darkHostMatchesOverride.isCustomOverride, false);
-  assert.equal(darkHostMatchesOverride.pageBg, 'elevation.surface.sunken');
+  const lightPalette = getThemeSurfacePalette('light');
+  assert.equal(lightPalette.hostColorMode, 'light');
+  assert.equal(lightPalette.themeLabel, 'Jira Theme: Light');
+  for (const [key, token] of Object.entries(expectedSemanticTokens)) {
+    assert.equal(lightPalette[key], token);
+    assert.equal(typeof lightPalette[key], 'string');
+  }
+  assert.equal('isCustomOverride' in lightPalette, false);
+  assert.equal('effectiveColorMode' in lightPalette, false);
+
+  const darkPalette = getThemeSurfacePalette('dark');
+  assert.equal(darkPalette.hostColorMode, 'dark');
+  assert.equal(darkPalette.themeLabel, 'Jira Theme: Dark');
+  for (const [key, token] of Object.entries(expectedSemanticTokens)) {
+    assert.equal(darkPalette[key], token);
+    assert.equal(typeof darkPalette[key], 'string');
+  }
+  assert.equal('isCustomOverride' in darkPalette, false);
+  assert.equal('effectiveColorMode' in darkPalette, false);
+
+  // Any extra legacy override argument is ignored; surfaces stay synced with Jira host
+  const ignoredOverrideLight = getThemeSurfacePalette('light', 'dark');
+  assert.equal(ignoredOverrideLight.hostColorMode, 'light');
+  assert.equal(ignoredOverrideLight.themeLabel, 'Jira Theme: Light');
+  assert.equal(ignoredOverrideLight.cardBg, 'elevation.surface.raised');
+  assert.equal(ignoredOverrideLight.borderColor, 'color.border');
+
+  const ignoredOverrideDark = getThemeSurfacePalette('dark', 'light');
+  assert.equal(ignoredOverrideDark.hostColorMode, 'dark');
+  assert.equal(ignoredOverrideDark.themeLabel, 'Jira Theme: Dark');
+  assert.equal(ignoredOverrideDark.cardBg, 'elevation.surface.raised');
+  assert.equal(ignoredOverrideDark.borderColor, 'color.border');
 });
 
-test('getThemeSurfacePalette applies accessible contrast pairs when custom override differs from host', () => {
-  const darkOverrideOnLightHost = getThemeSurfacePalette('light', 'dark');
-  assert.equal(darkOverrideOnLightHost.isCustomOverride, true);
-  assert.equal(darkOverrideOnLightHost.effectiveColorMode, 'dark');
-  assert.deepEqual(darkOverrideOnLightHost.cardBg, { light: '#1D2125', dark: '#1D2125' });
-  assert.equal(darkOverrideOnLightHost.headingColor, 'color.text.inverse');
-  assert.equal(darkOverrideOnLightHost.iconColor, 'color.icon.inverse');
-  assert.equal(darkOverrideOnLightHost.hostSurfaceBg, 'elevation.surface');
+test('normalizeColorMode, formatJiraThemeLabel, and getThemeSurfacePalette handle host mode changes and fallbacks', () => {
+  // Explicit host modes and case/whitespace variants
+  assert.equal(normalizeColorMode('light'), 'light');
+  assert.equal(normalizeColorMode('LIGHT'), 'light');
+  assert.equal(normalizeColorMode(' light '), 'light');
+  assert.equal(normalizeColorMode('dark'), 'dark');
+  assert.equal(normalizeColorMode('DARK'), 'dark');
+  assert.equal(normalizeColorMode(' dark '), 'dark');
+  assert.equal(normalizeColorMode({ colorMode: 'dark' }), 'dark');
+  assert.equal(normalizeColorMode({ colorMode: 'light' }), 'light');
 
-  const lightOverrideOnDarkHost = getThemeSurfacePalette('dark', 'light');
-  assert.equal(lightOverrideOnDarkHost.isCustomOverride, true);
-  assert.equal(lightOverrideOnDarkHost.effectiveColorMode, 'light');
-  assert.deepEqual(lightOverrideOnDarkHost.cardBg, { light: '#FFFFFF', dark: '#FFFFFF' });
-  assert.equal(lightOverrideOnDarkHost.headingColor, 'color.text.inverse');
-  assert.equal(lightOverrideOnDarkHost.hostSurfaceBg, 'elevation.surface');
+  assert.equal(formatJiraThemeLabel('light'), 'Jira Theme: Light');
+  assert.equal(formatJiraThemeLabel('LIGHT'), 'Jira Theme: Light');
+  assert.equal(formatJiraThemeLabel('  light  '), 'Jira Theme: Light');
+  assert.equal(formatJiraThemeLabel({ colorMode: ' Light ' }), 'Jira Theme: Light');
+
+  assert.equal(formatJiraThemeLabel('dark'), 'Jira Theme: Dark');
+  assert.equal(formatJiraThemeLabel('DARK'), 'Jira Theme: Dark');
+  assert.equal(formatJiraThemeLabel('  dark  '), 'Jira Theme: Dark');
+  assert.equal(formatJiraThemeLabel({ colorMode: ' Dark ' }), 'Jira Theme: Dark');
+
+  // Unresolved, missing, or unrecognized host themes show Syncing while keeping valid ADS tokens
+  assert.equal(formatJiraThemeLabel(), 'Jira Theme: Syncing...');
+  const noArgPalette = getThemeSurfacePalette();
+  assert.equal(noArgPalette.hostColorMode, 'light');
+  assert.equal(noArgPalette.themeLabel, 'Jira Theme: Syncing...');
+  assert.equal(noArgPalette.pageBg, 'elevation.surface.sunken');
+  assert.equal(noArgPalette.cardBg, 'elevation.surface.raised');
+  assert.equal(noArgPalette.borderColor, 'color.border');
+
+  for (const fallbackInput of [
+    null,
+    undefined,
+    '',
+    '   ',
+    'auto',
+    'high-contrast',
+    'unknown',
+    {},
+    { colorMode: null },
+    { colorMode: undefined },
+    { colorMode: 'auto' },
+    42
+  ]) {
+    assert.equal(normalizeColorMode(fallbackInput), 'light');
+    assert.equal(formatJiraThemeLabel(fallbackInput), 'Jira Theme: Syncing...');
+    const fallbackPalette = getThemeSurfacePalette(fallbackInput);
+    assert.equal(fallbackPalette.hostColorMode, 'light');
+    assert.equal(fallbackPalette.themeLabel, 'Jira Theme: Syncing...');
+    assert.equal(fallbackPalette.pageBg, 'elevation.surface.sunken');
+    assert.equal(fallbackPalette.cardBg, 'elevation.surface.raised');
+    assert.equal(fallbackPalette.subtleCardBg, 'elevation.surface');
+    assert.equal(fallbackPalette.hostSurfaceBg, 'elevation.surface');
+    assert.equal(fallbackPalette.borderColor, 'color.border');
+    assert.equal(fallbackPalette.headingColor, 'color.text');
+    assert.equal(fallbackPalette.textColor, 'color.text');
+    assert.equal(fallbackPalette.subduedTextColor, 'color.text.subtle');
+    assert.equal(fallbackPalette.iconColor, 'color.icon');
+    assert.equal(fallbackPalette.buttonAppearance, 'default');
+  }
+
+  // Simulated Jira host theme load and transitions update indicator label accurately
+  const sequence = [null, 'dark', 'light', 'dark'].map((mode) => ({
+    palette: getThemeSurfacePalette(mode),
+    label: formatJiraThemeLabel(mode)
+  }));
+  assert.equal(sequence[0].label, 'Jira Theme: Syncing...');
+  assert.equal(sequence[0].palette.themeLabel, 'Jira Theme: Syncing...');
+  assert.equal(sequence[0].palette.hostColorMode, 'light');
+  assert.equal(sequence[0].palette.cardBg, 'elevation.surface.raised');
+  assert.equal(sequence[1].label, 'Jira Theme: Dark');
+  assert.equal(sequence[1].palette.themeLabel, 'Jira Theme: Dark');
+  assert.equal(sequence[1].palette.hostColorMode, 'dark');
+  assert.equal(sequence[2].label, 'Jira Theme: Light');
+  assert.equal(sequence[2].palette.themeLabel, 'Jira Theme: Light');
+  assert.equal(sequence[2].palette.hostColorMode, 'light');
+  assert.equal(sequence[3].label, 'Jira Theme: Dark');
+  assert.equal(sequence[3].palette.themeLabel, 'Jira Theme: Dark');
+  assert.equal(sequence[3].palette.hostColorMode, 'dark');
+});
+
+test('theme synchronization uses valid ADS tokens and removes independent override state across modified files', () => {
+  const testDir = path.dirname(fileURLToPath(import.meta.url));
+  const projectRoot = path.resolve(testDir, '..');
+
+  const activeTokensSrc = fs.readFileSync(
+    path.join(projectRoot, 'node_modules/@atlaskit/tokens/dist/types/artifacts/types.d.ts'),
+    'utf8'
+  );
+  const forgeTokensSrc = fs.readFileSync(
+    path.join(
+      projectRoot,
+      'node_modules/@atlaskit/forge-react-types/dist/types/components/__generated__/tokens.codegen.d.ts'
+    ),
+    'utf8'
+  );
+
+  for (const mode of ['light', 'dark', null, undefined, 'auto']) {
+    const palette = getThemeSurfacePalette(mode);
+    const tokenFields = [
+      'pageBg',
+      'cardBg',
+      'subtleCardBg',
+      'hostSurfaceBg',
+      'borderColor',
+      'headingColor',
+      'textColor',
+      'subduedTextColor',
+      'iconColor'
+    ];
+    for (const field of tokenFields) {
+      const value = palette[field];
+      assert.equal(typeof value, 'string', `${field} must be a string token`);
+      assert.equal(/#[0-9a-f]{3,8}/i.test(value), false, `${field} must not be a hex color`);
+      assert.equal(
+        activeTokensSrc.includes(`'${value}'`),
+        true,
+        `${field} token '${value}' must exist in @atlaskit/tokens ActiveTokens`
+      );
+    }
+    assert.equal(
+      forgeTokensSrc.includes(`'${palette.borderColor}'`),
+      true,
+      `borderColor token '${palette.borderColor}' must exist in Forge xcss tokensMap`
+    );
+  }
+
+  const indexSrc = fs.readFileSync(path.join(projectRoot, 'src/frontend/index.jsx'), 'utf8');
+  assert.match(indexSrc, /\buseTheme\b/);
+  assert.match(indexSrc, /getThemeSurfacePalette\(hostTheme\?\.colorMode\)/);
+  assert.equal(/view\.theme\.enable/.test(indexSrc), false);
+  assert.equal(/themeOverride|handleToggleTheme|handleResetTheme|onToggleTheme|onResetTheme/.test(indexSrc), false);
+  for (const section of [
+    'DashboardHeader',
+    'OverviewSection',
+    'PrioritiesSection',
+    'BlockerRadarSection',
+    'RecentSignalsSection',
+    'ConfluenceKnowledgeSection'
+  ]) {
+    assert.match(indexSrc, new RegExp(`<${section}[\\s\\S]*?palette=\\{palette\\}`));
+  }
+
+  const headerSrc = fs.readFileSync(
+    path.join(projectRoot, 'src/frontend/components/DashboardHeader.jsx'),
+    'utf8'
+  );
+  assert.equal(/\bToggle\b/.test(headerSrc), false);
+  assert.equal(/onToggleTheme|onResetTheme|isCustomOverride|effectiveColorMode|theme-toggle|theme-reset-button/.test(headerSrc), false);
+  assert.equal(/hostColorMode/.test(headerSrc), false);
+  assert.match(headerSrc, /activePalette\.themeLabel/);
+  assert.match(headerSrc, /jira-theme-indicator/);
+
+  const helpersSrc = fs.readFileSync(
+    path.join(projectRoot, 'src/frontend/briefingViewHelpers.js'),
+    'utf8'
+  );
+  assert.equal(/#[0-9a-f]{3,8}/i.test(helpersSrc), false);
+  assert.equal(/userOverride|isCustomOverride|effectiveColorMode/.test(helpersSrc), false);
 });
 
 test('formatBriefingDate and formatTimestampInTimeZone handle valid and invalid dates safely', () => {

@@ -13,93 +13,67 @@ const MS_PER_HOUR = 3600000;
 const MS_PER_DAY = 86400000;
 
 /**
- * Normalizes a color mode string to either 'light' or 'dark'.
+ * Normalizes a color mode string (or Forge `useTheme()` theme object) to either 'light' or 'dark'.
+ * Falls back safely to 'light' when the host theme is still loading or unrecognized.
  *
- * @param {string|null|undefined} mode - Color mode from Forge theme context or user toggle.
+ * @param {string|{ colorMode?: string }|null|undefined} mode - Host theme or color mode from `useTheme()`.
  * @returns {'light'|'dark'} Normalized color mode.
  */
 export function normalizeColorMode(mode) {
-  return mode === 'dark' ? 'dark' : 'light';
+  const rawMode = mode && typeof mode === 'object' ? mode.colorMode : mode;
+  return typeof rawMode === 'string' && rawMode.trim().toLowerCase() === 'dark' ? 'dark' : 'light';
 }
 
 /**
- * Resolves surface, border, and text token configurations for FocusBrief AI's
- * custom containers based on Jira's host color mode and the user's session toggle.
+ * Formats the read-only Jira host theme indicator label from raw host theme context.
+ * Returns `'Jira Theme: Syncing...'` when the host theme is unresolved, missing, or unrecognized.
  *
- * Forge UI Kit does not provide a `data-color-mode` wrapper prop or a global CSS
- * token override, so built-in composite widgets (DynamicTable, Tabs, Modal,
- * SectionMessage, Textfield, Select) always follow Jira's host `--ds-*` tokens.
- *
- * To keep every surface accessible and legible:
- * - When the user's selected mode matches Jira's host mode, standard Atlassian
- *   Design System tokens (`elevation.surface.*`, `color.border`, `color.text`) are used.
- * - When the user overrides the appearance to contrast with Jira's host mode,
- *   custom Box cards receive explicit hex pairs along with `color.text.inverse`,
- *   while built-in composite components remain wrapped inside `hostSurfaceBg`
- *   (`elevation.surface`) so their host-themed text stays readable.
- *
- * @param {string|null|undefined} hostMode - Host Jira color mode from `useTheme()`.
- * @param {string|null|undefined} userOverride - Session-only override ('light'|'dark'|null).
- * @returns {Object} Resolved surface palette and mode metadata.
+ * @param {string|{ colorMode?: string }|null|undefined} hostMode - Raw host Jira theme or color mode from `useTheme()`.
+ * @returns {'Jira Theme: Light'|'Jira Theme: Dark'|'Jira Theme: Syncing...'} Human-readable host theme indicator label.
  */
-export function getThemeSurfacePalette(hostMode, userOverride = null) {
+export function formatJiraThemeLabel(hostMode) {
+  const rawMode = hostMode && typeof hostMode === 'object' ? hostMode.colorMode : hostMode;
+  if (typeof rawMode !== 'string') {
+    return 'Jira Theme: Syncing...';
+  }
+
+  const normalized = rawMode.trim().toLowerCase();
+  if (normalized === 'dark') {
+    return 'Jira Theme: Dark';
+  }
+  if (normalized === 'light') {
+    return 'Jira Theme: Light';
+  }
+  return 'Jira Theme: Syncing...';
+}
+
+/**
+ * Resolves valid Atlassian Design System semantic surface, border, text, and icon
+ * tokens for FocusBrief AI containers synchronized directly with Jira's host theme.
+ *
+ * Because Forge UI Kit renders inside Jira's host theme context (`useTheme()`),
+ * using semantic ADS tokens (`elevation.surface.*`, `color.border`, `color.text`,
+ * `color.text.subtle`, `color.icon`) ensures every surface, border, heading, text,
+ * icon, and built-in widget automatically adapts to Jira Light and Dark modes.
+ *
+ * @param {string|{ colorMode?: string }|null|undefined} hostMode - Raw host Jira theme or color mode from `useTheme()`.
+ * @returns {Object} Resolved ADS semantic token palette and host theme metadata.
+ */
+export function getThemeSurfacePalette(hostMode) {
   const normalizedHostMode = normalizeColorMode(hostMode);
-  const effectiveMode = userOverride ? normalizeColorMode(userOverride) : normalizedHostMode;
-  const isCustomOverride = effectiveMode !== normalizedHostMode;
 
-  if (!isCustomOverride) {
-    return {
-      hostColorMode: normalizedHostMode,
-      effectiveColorMode: effectiveMode,
-      isCustomOverride: false,
-      pageBg: 'elevation.surface.sunken',
-      cardBg: 'elevation.surface.raised',
-      subtleCardBg: 'elevation.surface',
-      hostSurfaceBg: 'elevation.surface',
-      borderColor: 'color.border',
-      headingColor: 'color.text',
-      textColor: 'color.text',
-      subduedTextColor: 'color.text.subtle',
-      iconColor: 'color.icon',
-      buttonAppearance: 'default'
-    };
-  }
-
-  if (effectiveMode === 'dark') {
-    // Host is Light while user toggled custom Dark surfaces.
-    // Note: in a Light host, `color.text.inverse` resolves to white (#FFFFFF).
-    return {
-      hostColorMode: normalizedHostMode,
-      effectiveColorMode: 'dark',
-      isCustomOverride: true,
-      pageBg: { light: '#161A1D', dark: '#161A1D' },
-      cardBg: { light: '#1D2125', dark: '#1D2125' },
-      subtleCardBg: { light: '#22272B', dark: '#22272B' },
-      hostSurfaceBg: 'elevation.surface',
-      borderColor: { light: '#38414A', dark: '#38414A' },
-      headingColor: 'color.text.inverse',
-      textColor: 'color.text.inverse',
-      subduedTextColor: 'color.text.inverse',
-      iconColor: 'color.icon.inverse',
-      buttonAppearance: 'default'
-    };
-  }
-
-  // Host is Dark while user toggled custom Light surfaces.
-  // Note: in a Dark host, `color.text.inverse` resolves to dark slate (#1D2125).
   return {
     hostColorMode: normalizedHostMode,
-    effectiveColorMode: 'light',
-    isCustomOverride: true,
-    pageBg: { light: '#F1F2F4', dark: '#F1F2F4' },
-    cardBg: { light: '#FFFFFF', dark: '#FFFFFF' },
-    subtleCardBg: { light: '#F7F8F9', dark: '#F7F8F9' },
+    themeLabel: formatJiraThemeLabel(hostMode),
+    pageBg: 'elevation.surface.sunken',
+    cardBg: 'elevation.surface.raised',
+    subtleCardBg: 'elevation.surface',
     hostSurfaceBg: 'elevation.surface',
-    borderColor: { light: '#DCDFE4', dark: '#DCDFE4' },
-    headingColor: 'color.text.inverse',
-    textColor: 'color.text.inverse',
-    subduedTextColor: 'color.text.inverse',
-    iconColor: 'color.icon.inverse',
+    borderColor: 'color.border',
+    headingColor: 'color.text',
+    textColor: 'color.text',
+    subduedTextColor: 'color.text.subtle',
+    iconColor: 'color.icon',
     buttonAppearance: 'default'
   };
 }
