@@ -156,4 +156,4 @@ Deployment requires Atlassian authentication and app permissions.
 
 ## License
 
-`package.json` specifies the `MIT` license, though a `LICENSE` file is still pending and has not yet been added to the repository root. Please add a `LICENSE` file before distributing or publishing the repository under the MIT License.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.

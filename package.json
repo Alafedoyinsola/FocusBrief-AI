@@ -1,11 +1,11 @@
 {
-  "name": "jira-admin-page-ui-kit",
+  "name": "focusbrief-ai",
   "version": "1.1.52-next.14",
   "main": "index.js",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "lint": "eslint src/**/*",
+    "lint": "eslint --ext .js,.jsx src",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test"
   },
   "devDependencies": {
