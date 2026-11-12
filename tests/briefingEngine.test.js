@@ -357,8 +357,45 @@ describe('Blocker detection, link directionality, and false-positive prevention'
       analyzeDeadline(null, '2026-11-10'),
       analyzeBlockers(localizedInProgressParent)
     );
-    assert.ok(scoredInProgress.reasons.includes('Currently in progress'));
+    assert.ok(scoredInProgress.reasons.includes('Current status: In Bearbeitung'));
+    assert.equal(scoredInProgress.reasons.includes('Currently in progress'), false);
     assert.equal(scoredInProgress.score, 20); // Medium 15 + In Progress 5
+  });
+
+  it('uses actual workflow status name for indeterminate statuses like In Review', () => {
+    const inReviewIssue = makeIssue({
+      key: 'PROJ-22',
+      summary: 'Verify API rate-limit handling',
+      status: {
+        name: 'In Review',
+        category: 'In Progress',
+        statusCategoryKey: 'indeterminate',
+        colorName: 'yellow'
+      },
+      priority: { name: 'Medium' }
+    });
+
+    const scoredInReview = scoreIssue(
+      inReviewIssue,
+      analyzeDeadline(null, '2026-11-10'),
+      analyzeBlockers(inReviewIssue)
+    );
+    assert.equal(scoredInReview.score, 20); // Preserves Medium 15 + indeterminate +5 momentum weight
+    assert.ok(scoredInReview.reasons.includes('Current status: In Review'));
+    assert.equal(scoredInReview.reasons.includes('Currently in progress'), false);
+
+    const briefing = buildDailyBriefing(
+      {
+        success: true,
+        user: { displayName: 'Alex', timeZone: 'UTC', avatarUrl: null },
+        issues: [inReviewIssue]
+      },
+      { referenceDate: new Date('2026-11-10T09:00:00.000Z') }
+    );
+    assert.equal(briefing.recommendedActions.length, 1);
+    assert.deepEqual(briefing.recommendedActions[0].status, inReviewIssue.status);
+    assert.ok(briefing.recommendedActions[0].reasons.includes('Current status: In Review'));
+    assert.equal(briefing.recommendedActions[0].reasons.includes('Currently in progress'), false);
   });
 
   it('detects completed tasks via status-name fallback when statusCategoryKey is missing', () => {
@@ -928,7 +965,8 @@ describe('Error handling and resolver integration safeguards', () => {
     assert.equal(result.summary.dueTodayCount, 1);
     assert.equal(result.summary.blockedCount, 0); // FB-0 is Done via key: 'done' even when localized as 'Fertig'!
     assert.equal(result.issues[0].status.statusCategoryKey, 'indeterminate');
-    assert.ok(result.issues[0].reasons.includes('Currently in progress'));
+    assert.ok(result.issues[0].reasons.includes('Current status: In Arbeit'));
     assert.equal(result.recommendedActions[0].issueKey, 'FB-1');
+    assert.deepEqual(result.recommendedActions[0].status, result.issues[0].status);
   });
 });

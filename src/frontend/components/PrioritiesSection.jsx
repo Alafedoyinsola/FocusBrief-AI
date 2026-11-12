@@ -274,6 +274,10 @@ export function PrioritiesSection({ briefing, palette, onSelectIssue, onOpenIssu
               {recommendedActions.map((action) => {
                 const isUnblock = action.actionType === 'unblock';
                 const scoreMeta = getScorePresentation(action.score);
+                const statusAppearance = getStatusAppearance(
+                  action.status?.statusCategoryKey,
+                  action.status?.category
+                );
                 const actionReasons = Array.isArray(action.reasons) ? action.reasons.slice(0, 4) : [];
 
                 return (
@@ -285,7 +289,7 @@ export function PrioritiesSection({ briefing, palette, onSelectIssue, onOpenIssu
                   >
                     <Stack space="space.150">
                       <Inline spread="space-between" alignBlock="center" shouldWrap>
-                        <Inline space="space.075" alignBlock="center">
+                        <Inline space="space.075" alignBlock="center" shouldWrap>
                           <Badge appearance={action.rank === 1 ? 'primary' : 'default'}>
                             #{action.rank}
                           </Badge>
@@ -293,6 +297,9 @@ export function PrioritiesSection({ briefing, palette, onSelectIssue, onOpenIssu
                             {isUnblock ? 'Unblock' : 'Focus'}
                           </Lozenge>
                           <Code>{action.issueKey}</Code>
+                          <Lozenge appearance={statusAppearance}>
+                            {action.status?.name || 'Unknown'}
+                          </Lozenge>
                         </Inline>
                         <Badge appearance={scoreMeta.badgeAppearance} max={100}>
                           {action.score}

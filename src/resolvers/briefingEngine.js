@@ -480,14 +480,19 @@ export function scoreIssue(issue, deadlineInfo, blockerInfo) {
     reasons.push(`Blocks ${countLabel} (${blockerInfo.blocksOthersKeys.join(', ')})`);
   }
 
-  // 4. Work-in-progress momentum (prefer stable statusCategoryKey, fallback to category name)
+  // 4. Active work momentum (prefer stable statusCategoryKey, fallback to category name)
   const statusCategoryKey =
     typeof issue?.status?.statusCategoryKey === 'string' ? issue.status.statusCategoryKey.trim().toLowerCase() : '';
   const statusCategory =
     typeof issue?.status?.category === 'string' ? issue.status.category.trim().toLowerCase() : '';
   if (statusCategoryKey === 'indeterminate' || (!statusCategoryKey && statusCategory === 'in progress')) {
     rawScore += 5;
-    reasons.push('Currently in progress');
+    const statusName = typeof issue?.status?.name === 'string' ? issue.status.name.trim() : '';
+    reasons.push(
+      statusName && statusName.toLowerCase() !== 'unknown'
+        ? `Current status: ${statusName}`
+        : 'Active work status'
+    );
   }
 
   // 5. Blocked penalty and explanation
@@ -584,6 +589,7 @@ function generateRecommendedActions(sortedActiveIssues) {
       actionType: 'focus',
       issueKey: item.key,
       summary: item.summary,
+      status: item.status || null,
       score: item.score,
       title: `Work on ${item.key}: ${item.summary}`,
       reasons: item.reasons
@@ -605,6 +611,7 @@ function generateRecommendedActions(sortedActiveIssues) {
       actionType: 'unblock',
       issueKey: item.key,
       summary: item.summary,
+      status: item.status || null,
       score: item.score,
       title,
       reasons: item.reasons
