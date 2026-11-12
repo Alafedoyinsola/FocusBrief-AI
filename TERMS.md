@@ -54,9 +54,9 @@ We do not guarantee uninterrupted or error-free availability.
 
 ## 7. Intellectual Property
 
-The application, including its original code, design, and documentation, remains the intellectual property of its developer unless otherwise stated.
+FocusBrief AI's original source code is distributed under the MIT License, a copy of which is included in the repository's LICENSE file. Your rights to use, copy, modify, distribute, sublicense, and sell the licensed software are governed by that license.
 
-These Terms do not grant you ownership of the application.
+The FocusBrief AI name, logo, branding, and any associated trademarks are not granted under the MIT License unless expressly stated otherwise.
 
 ## 8. Limitation of Liability
 
@@ -76,6 +76,6 @@ These Terms may be updated when the application or its services change. Continue
 
 ## 11. Contact
 
-For questions about these Terms, contact the developer using the customer support email address displayed on the FocusBrief AI Atlassian installation or distribution page.
+For questions about these Terms, contact the developer through the FocusBrief AI GitHub Issues page: https://github.com/Alafedoyinsola/FocusBrief-AI/issues. Please avoid posting confidential or personal information in public issues.
 
 **Developer:** Independent Developer

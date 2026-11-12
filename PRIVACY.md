@@ -33,9 +33,7 @@ Information accessed by FocusBrief AI is used to:
 
 The current application implementation does not use a separate application-managed database or persistent storage system to retain the Jira or Confluence information described above.
 
-Information is processed to generate the requested briefing and is returned to the application interface. The application does not intentionally retain this information in an application-managed cache for longer than 24 hours.
-
-Atlassian may process operational data and application logs through its own infrastructure in accordance with its applicable policies.
+Information is accessed and processed as needed to generate the requested briefing and is returned to the application interface. This does not establish a fixed retention period for transient processing. Atlassian may process operational data and application logs through its own infrastructure in accordance with its applicable policies.
 
 ## 5. Third-Party Services
 
@@ -61,6 +59,6 @@ This Privacy Policy may be updated when application functionality or data practi
 
 ## 9. Contact
 
-For privacy questions or requests, contact the developer using the customer support email address displayed on the FocusBrief AI Atlassian installation or distribution page.
+For privacy questions or requests, contact the developer through the FocusBrief AI GitHub Issues page: https://github.com/Alafedoyinsola/FocusBrief-AI/issues. Please avoid posting confidential or personal information in public issues.
 
 **Developer:** Independent Developer
