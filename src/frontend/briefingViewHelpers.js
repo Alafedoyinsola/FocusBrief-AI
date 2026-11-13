@@ -712,8 +712,8 @@ export async function openJiraIssueWithRouter(issueKey, routerApi) {
       issueKey: trimmedKey
     });
     return true;
-  } catch (err) {
-    console.error(`Failed to navigate to Jira issue ${trimmedKey}:`, err);
+  } catch {
+    console.error('[FocusBrief AI] Jira issue navigation failed.');
     return false;
   }
 }
@@ -734,8 +734,8 @@ export async function openConfluenceDocWithRouter(doc, routerApi) {
   try {
     await routerApi.open(safeTarget);
     return true;
-  } catch (err) {
-    console.error('Failed to navigate to Confluence page:', err);
+  } catch {
+    console.error('[FocusBrief AI] Confluence page navigation failed.');
     return false;
   }
 }

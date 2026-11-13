@@ -195,9 +195,9 @@ export async function fetchJiraDailyBriefingData(options = {}) {
         jql: jql
       }
     };
-  } catch (err) {
-    // Log complete error internally for server-side debugging without leaking internals to the client
-    console.error('Unhandled exception in fetchJiraDailyBriefingData:', err);
+  } catch {
+    // Keep server-side diagnostics free of raw exception details.
+    console.error('[FocusBrief AI] Jira briefing data retrieval failed.');
 
     return {
       success: false,
