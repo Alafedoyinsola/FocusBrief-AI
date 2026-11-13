@@ -735,7 +735,7 @@ export async function fetchRelevantConfluenceDocs(options = {}) {
 
     return buildKnowledgeResult('ok', null, rankedDocs, signals.queryTerms, totalFound);
   } catch (err) {
-    console.error('Confluence knowledge retrieval failed:', err);
+    console.error('[FocusBrief AI] Confluence knowledge retrieval failed.');
 
     if (err instanceof NeedsAuthenticationError || err?.name === 'NeedsAuthenticationError') {
       return buildKnowledgeResult(
