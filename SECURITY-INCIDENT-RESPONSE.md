@@ -23,9 +23,9 @@ Ordinary service interruptions without a security or privacy concern can be hand
 
 Users should report suspected vulnerabilities or privacy incidents through the security contact channel published in the app's support or Marketplace information.
 
-**Proposed security reporting contact:** deeexchange1@gmail.com (the same address currently used for developer support).
+**Security reporting contact:** deeexchange1@gmail.com (the same address used for developer support).
 
-This address is proposed for security reports but is not yet confirmed as an operational security channel. Before publishing it in Marketplace information, verify that the inbox is actively monitored, access is restricted to the responsible developer, and a test report can be received and acknowledged. If those conditions cannot be met, configure a separate private reporting route before publication.
+The developer has confirmed that this inbox is accessible and regularly monitored. Before publishing it in Marketplace information, verify that access is appropriately restricted and test that a security report can be received and acknowledged. If those conditions cannot be met, configure a separate private reporting route before publication.
 
 Use email for initial contact only. Do not send passwords, API tokens, authentication cookies, confidential Jira/Confluence content or unnecessary personal information. Do not assume email is encrypted end-to-end. If investigation requires sensitive evidence, arrange an appropriately restricted transfer method.
 
@@ -132,7 +132,8 @@ Review the incident process after a significant event and revise this runbook wh
 
 Complete and verify these items before Marketplace launch:
 
-- [ ] Verify that deeexchange1@gmail.com is monitored and access is restricted to the responsible developer, or configure a separate private reporting route.
+- [x] Confirm that deeexchange1@gmail.com is accessible and regularly monitored by the developer.
+- [ ] Verify that access to the inbox is appropriately restricted.
 - [ ] Test receipt and acknowledgement of a security report before publishing the contact.
 - [ ] Publish the security contact only after the reporting route is verified.
 - [ ] Arrange a restricted method for transferring sensitive evidence if needed.
