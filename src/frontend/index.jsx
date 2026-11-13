@@ -96,11 +96,11 @@ const App = () => {
           setLoadError(errorMessage);
         }
       }
-    } catch (err) {
+    } catch {
       if (!isMountedRef.current) {
         return;
       }
-      console.error('Failed to invoke getDailyBriefing resolver:', err);
+      console.error('[FocusBrief AI] Daily briefing request failed.');
       const fallbackMessage =
         'Unable to reach the FocusBrief AI briefing service right now. Please try again.';
       if (isRefresh) {
