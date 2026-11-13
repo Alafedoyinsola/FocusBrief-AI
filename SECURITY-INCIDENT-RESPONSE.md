@@ -98,7 +98,7 @@ Notifications should be accurate, timely and limited to verified facts. Explain 
 
 Do not publish incident details or make legal conclusions before assessing the facts and applicable obligations. Where legal or regulatory obligations may apply, obtain qualified advice.
 
-This runbook does not set a fixed notification deadline. Applicable contractual, platform and legal requirements take precedence.
+The operational target is to acknowledge security reports within 2 business days where practicable. This is not a resolution guarantee and does not replace any shorter contractual, platform or legal notification deadline. Applicable requirements take precedence.
 
 ## 8. Remediation and recovery
 
@@ -139,7 +139,7 @@ Complete and verify these items before Marketplace launch:
 - [ ] Publish the security contact only after the reporting route is verified.
 - [ ] Arrange a restricted method for transferring sensitive evidence if needed.
   - A private Google Drive folder named `FocusBrief AI - Security Evidence` has been created with General access set to Restricted. It is currently owner-only; no reporter upload or sharing workflow has been configured, so this item remains open.
-- [ ] Define a realistic acknowledgement and update target; do not advertise an SLA until it can be met.
+- [x] Define an acknowledgement target: aim to acknowledge security reports within 2 business days. This is an initial-response target, not a resolution guarantee; publish it only where the developer can consistently meet it.
 - [ ] Confirm access to Atlassian developer and support escalation routes.
 - [ ] Identify how to disable or restrict an affected installation or feature.
 - [ ] Document where deployment credentials and secrets are managed and how to rotate them.
