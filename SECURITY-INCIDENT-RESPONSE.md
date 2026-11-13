@@ -138,6 +138,7 @@ Complete and verify these items before Marketplace launch:
 - [x] Test receipt and acknowledgement of a security report before publishing the contact; a harmless test email was received in the security inbox and acknowledged by reply on November 13, 2026.
 - [ ] Publish the security contact only after the reporting route is verified.
 - [ ] Arrange a restricted method for transferring sensitive evidence if needed.
+  - A private Google Drive folder named `FocusBrief AI - Security Evidence` has been created with General access set to Restricted. It is currently owner-only; no reporter upload or sharing workflow has been configured, so this item remains open.
 - [ ] Define a realistic acknowledgement and update target; do not advertise an SLA until it can be met.
 - [ ] Confirm access to Atlassian developer and support escalation routes.
 - [ ] Identify how to disable or restrict an affected installation or feature.
