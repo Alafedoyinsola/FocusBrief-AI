@@ -21,11 +21,15 @@ Ordinary service interruptions without a security or privacy concern can be hand
 
 ## 2. Reporting a concern
 
-Users should report suspected vulnerabilities or privacy incidents through a private security contact channel published in the app's support or Marketplace information.
+Users should report suspected vulnerabilities or privacy incidents through the security contact channel published in the app's support or Marketplace information.
 
-Before Marketplace publication, the developer must configure and test a private reporting route. Public GitHub issues are not an appropriate channel for vulnerability details, credentials, personal information or confidential Jira/Confluence content.
+**Proposed security reporting contact:** deeexchange1@gmail.com (the same address currently used for developer support).
 
-If a report arrives through a public issue, do not repeat sensitive details in a public reply. Restrict or remove exposed material where possible, preserve necessary evidence privately, and direct the reporter to the verified private channel.
+This address is proposed for security reports but is not yet confirmed as an operational security channel. Before publishing it in Marketplace information, verify that the inbox is actively monitored, access is restricted to the responsible developer, and a test report can be received and acknowledged. If those conditions cannot be met, configure a separate private reporting route before publication.
+
+Use email for initial contact only. Do not send passwords, API tokens, authentication cookies, confidential Jira/Confluence content or unnecessary personal information. Do not assume email is encrypted end-to-end. If investigation requires sensitive evidence, arrange an appropriately restricted transfer method.
+
+Public GitHub issues are not an appropriate channel for vulnerability details, credentials, personal information or confidential Jira/Confluence content. If a report arrives through a public issue, do not repeat sensitive details in a public reply. Restrict or remove exposed material where possible, preserve necessary evidence privately, and direct the reporter to the verified private channel.
 
 ## 3. Initial triage
 
@@ -128,9 +132,10 @@ Review the incident process after a significant event and revise this runbook wh
 
 Complete and verify these items before Marketplace launch:
 
-- [ ] Configure a private security vulnerability reporting channel.
-- [ ] Publish a security contact that is monitored.
-- [ ] Test that incoming reports reach the responsible developer.
+- [ ] Verify that deeexchange1@gmail.com is monitored and access is restricted to the responsible developer, or configure a separate private reporting route.
+- [ ] Test receipt and acknowledgement of a security report before publishing the contact.
+- [ ] Publish the security contact only after the reporting route is verified.
+- [ ] Arrange a restricted method for transferring sensitive evidence if needed.
 - [ ] Define a realistic acknowledgement and update target; do not advertise an SLA until it can be met.
 - [ ] Confirm access to Atlassian developer and support escalation routes.
 - [ ] Identify how to disable or restrict an affected installation or feature.
