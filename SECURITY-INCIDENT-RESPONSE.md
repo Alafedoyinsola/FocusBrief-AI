@@ -135,7 +135,7 @@ Complete and verify these items before Marketplace launch:
 - [x] Confirm that deeexchange1@gmail.com is accessible and regularly monitored by the developer.
 - [x] Confirm that Google two-step verification is enabled on the account.
 - [x] Verify that access to the inbox is appropriately restricted; the developer confirmed they are the only person with account access.
-- [ ] Test receipt and acknowledgement of a security report before publishing the contact.
+- [x] Test receipt and acknowledgement of a security report before publishing the contact; a harmless test email was received in the security inbox and acknowledged by reply on November 13, 2026.
 - [ ] Publish the security contact only after the reporting route is verified.
 - [ ] Arrange a restricted method for transferring sensitive evidence if needed.
 - [ ] Define a realistic acknowledgement and update target; do not advertise an SLA until it can be met.
