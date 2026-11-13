@@ -141,6 +141,7 @@ Complete and verify these items before Marketplace launch:
   - A private Google Drive folder named `FocusBrief AI - Security Evidence` has been created with General access set to Restricted. It is currently owner-only; no reporter upload or sharing workflow has been configured, so this item remains open.
 - [x] Define an acknowledgement target: aim to acknowledge security reports within 2 business days. This is an initial-response target, not a resolution guarantee; publish it only where the developer can consistently meet it.
 - [ ] Confirm access to Atlassian developer and support escalation routes.
+  - Developer Console access is confirmed: the developer signed in, opened FocusBrief AI, and the page identifies them as app owner and Admin. Atlassian support escalation access remains to be checked.
 - [ ] Identify how to disable or restrict an affected installation or feature.
 - [ ] Document where deployment credentials and secrets are managed and how to rotate them.
 - [ ] Enable and periodically review appropriate repository protections and dependency/security alerts.
